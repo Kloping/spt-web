@@ -1,4 +1,4 @@
-package com.github.kloping.little_web;
+package io.github.kloping.little_web;
 
 import java.util.HashMap;
 import java.util.Map;

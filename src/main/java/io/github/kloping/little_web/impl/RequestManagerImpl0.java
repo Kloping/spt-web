@@ -1,20 +1,18 @@
-package com.github.kloping.little_web.impl;
+package io.github.kloping.little_web.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.github.kloping.little_web.MimeMapping;
-import com.github.kloping.little_web.WebExtension;
-import com.github.kloping.little_web.annotations.GetMethod;
-import com.github.kloping.little_web.annotations.PostMethod;
-import com.github.kloping.little_web.annotations.RequestMethod;
-import com.github.kloping.little_web.interfaces.RequestManager;
+import io.github.kloping.little_web.MimeMapping;
+import io.github.kloping.little_web.WebExtension;
+import io.github.kloping.little_web.annotations.GetMethod;
+import io.github.kloping.little_web.annotations.PostMethod;
+import io.github.kloping.little_web.annotations.RequestMethod;
+import io.github.kloping.little_web.interfaces.RequestManager;
 import io.github.kloping.MySpringTool.StarterApplication;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.io.ReadUtils;
 import io.github.kloping.object.ObjectUtils;
 import org.apache.catalina.connector.RequestFacade;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -24,7 +22,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.kloping.little_web.WebExtension.filter;
 import static io.github.kloping.MySpringTool.partUtils.getExceptionLine;
 
 /**
@@ -45,16 +42,16 @@ public class RequestManagerImpl0 implements RequestManager {
         String suffix = null;
         if (method.isAnnotationPresent(GetMethod.class)) {
             GetMethod a0 = method.getDeclaredAnnotation(GetMethod.class);
-            suffix = filter(a0.value());
-            GET_PATH_MAPPING.put(filter(pre + suffix), method);
+            suffix = WebExtension.filter(a0.value());
+            GET_PATH_MAPPING.put(WebExtension.filter(pre + suffix), method);
         } else if (method.isAnnotationPresent(PostMethod.class)) {
             PostMethod a0 = method.getDeclaredAnnotation(PostMethod.class);
-            suffix = filter(a0.value());
-            POST_PATH_MAPPING.put(filter(pre + suffix), method);
+            suffix = WebExtension.filter(a0.value());
+            POST_PATH_MAPPING.put(WebExtension.filter(pre + suffix), method);
         } else if (method.isAnnotationPresent(RequestMethod.class)) {
             RequestMethod a0 = method.getDeclaredAnnotation(RequestMethod.class);
-            suffix = filter(a0.value());
-            String n = filter(pre + suffix);
+            suffix = WebExtension.filter(a0.value());
+            String n = WebExtension.filter(pre + suffix);
             GET_PATH_MAPPING.put(n, method);
             POST_PATH_MAPPING.put(n, method);
         } else {

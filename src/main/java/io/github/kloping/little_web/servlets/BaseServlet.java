@@ -1,6 +1,6 @@
-package com.github.kloping.little_web.servlets;
+package io.github.kloping.little_web.servlets;
 
-import com.github.kloping.little_web.impl.RequestManagerImpl0;
+import io.github.kloping.little_web.impl.RequestManagerImpl0;
 import org.apache.catalina.servlets.DefaultServlet;
 
 import javax.servlet.ServletException;

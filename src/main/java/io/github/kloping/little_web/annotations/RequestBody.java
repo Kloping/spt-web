@@ -1,4 +1,4 @@
-package com.github.kloping.little_web.annotations;
+package io.github.kloping.little_web.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

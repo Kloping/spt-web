@@ -1,4 +1,4 @@
-package com.github.kloping.little_web.page;
+package io.github.kloping.little_web.page;
 
 /**
  * @author github.kloping

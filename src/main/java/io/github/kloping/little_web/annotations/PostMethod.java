@@ -1,4 +1,4 @@
-package com.github.kloping.little_web.annotations;
+package io.github.kloping.little_web.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 /**
  * @author github.kloping
  */
-@Target({ElementType.PARAMETER})
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestParm {
+public @interface PostMethod {
     String value();
 }

@@ -1,6 +1,6 @@
-package com.github.kloping.little_web.conf;
+package io.github.kloping.little_web.conf;
 
-import com.github.kloping.little_web.WebExtension;
+import io.github.kloping.little_web.WebExtension;
 
 /**
  * @author github.kloping

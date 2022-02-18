@@ -1,10 +1,10 @@
-package com.github.kloping.little_web;
+package io.github.kloping.little_web;
 
-import com.github.kloping.little_web.annotations.WebRestController;
-import com.github.kloping.little_web.conf.TomcatConfig;
-import com.github.kloping.little_web.impl.RequestManagerImpl0;
-import com.github.kloping.little_web.page.ErrorPage;
-import com.github.kloping.little_web.servlets.BaseServlet;
+import io.github.kloping.little_web.annotations.WebRestController;
+import io.github.kloping.little_web.conf.TomcatConfig;
+import io.github.kloping.little_web.impl.RequestManagerImpl0;
+import io.github.kloping.little_web.page.ErrorPage;
+import io.github.kloping.little_web.servlets.BaseServlet;
 import io.github.kloping.MySpringTool.StarterApplication;
 import io.github.kloping.MySpringTool.interfaces.Extension;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;

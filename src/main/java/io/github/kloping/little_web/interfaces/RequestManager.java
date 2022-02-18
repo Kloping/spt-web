@@ -1,4 +1,4 @@
-package com.github.kloping.little_web.interfaces;
+package io.github.kloping.little_web.interfaces;
 
 import io.github.kloping.MySpringTool.interfaces.component.MethodManager;
 
