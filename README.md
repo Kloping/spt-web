@@ -66,3 +66,9 @@ public class M0 {
 
 The prerequisite is to leave the class annotated by @WebrestController in
 @CommentScan(path)  path 
+
+Depends on the
+- tomcat
+- SpringTool
+- JvUtils
+- fastjson
