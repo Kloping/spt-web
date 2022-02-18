@@ -2,14 +2,25 @@ package io.github.kloping.little_web;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * @author github.kloping
  */
 public class MimeMapping {
-    private Map<String, String> mimeMap = new HashMap<>();
     private static final Map<String, String> FINAL = new HashMap<>();
-    public static final MimeMapping INSTANCE = new MimeMapping();
+
+    public static String get(String name) {
+        if (FINAL.containsKey(name)) {
+            return FINAL.get(name);
+        } else {
+            return "null";
+        }
+    }
+
+    public static void forEach(BiConsumer<String, String> consumer) {
+        FINAL.forEach(consumer);
+    }
 
     static {
         FINAL.put("abs", "audio/x-mpeg");
@@ -190,13 +201,4 @@ public class MimeMapping {
         FINAL.put("zip", "application/zip");
     }
 
-    public MimeMapping() {
-        FINAL.forEach((k, v) -> {
-            mimeMap.put(k, v);
-        });
-    }
-
-    public Map<String, String> getMimeMap() {
-        return mimeMap;
-    }
 }

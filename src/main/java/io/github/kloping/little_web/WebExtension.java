@@ -1,15 +1,15 @@
 package io.github.kloping.little_web;
 
-import io.github.kloping.little_web.annotations.WebRestController;
-import io.github.kloping.little_web.conf.TomcatConfig;
-import io.github.kloping.little_web.impl.RequestManagerImpl0;
-import io.github.kloping.little_web.page.ErrorPage;
-import io.github.kloping.little_web.servlets.BaseServlet;
 import io.github.kloping.MySpringTool.StarterApplication;
 import io.github.kloping.MySpringTool.interfaces.Extension;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.MySpringTool.interfaces.component.up0.ClassAttributeManager;
 import io.github.kloping.io.ReadUtils;
+import io.github.kloping.little_web.annotations.WebRestController;
+import io.github.kloping.little_web.conf.TomcatConfig;
+import io.github.kloping.little_web.impl.RequestManagerImpl0;
+import io.github.kloping.little_web.page.ErrorPage;
+import io.github.kloping.little_web.servlets.BaseServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.catalina.webresources.StandardRoot;
@@ -115,7 +115,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         }
         tomcat.addServlet("", "servlet0", new BaseServlet());
         context.addServletMappingDecoded("/", "servlet0");
-        new MimeMapping().getMimeMap().forEach((k, v) -> {
+        MimeMapping.forEach((k, v) -> {
             context.addMimeMapping(k, v);
         });
     }
@@ -123,33 +123,36 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
     private static String copyClassPathFileToTempDir(String st, File dir) {
         try {
             URL url = WebExtension.class.getClassLoader().getResource(st);
-            if ("jar".equals(url.getProtocol())) {
-                String ofn = url.getPath();
-                String fn = ofn.substring(ofn.indexOf("/"), ofn.indexOf("!"));
-                JarFile jarFile = new JarFile(fn);
-                Enumeration<JarEntry> enumeration = jarFile.entries();
-                while (enumeration.hasMoreElements()) {
-                    JarEntry entry = enumeration.nextElement();
-                    if (!entry.getName().startsWith(st)) {
-                        continue;
+            if (url != null) {
+                if ("jar".equals(url.getProtocol())) {
+                    String ofn = url.getPath();
+                    String fn = ofn.substring(ofn.indexOf("/"), ofn.indexOf("!"));
+                    JarFile jarFile = new JarFile(fn);
+                    Enumeration<JarEntry> enumeration = jarFile.entries();
+                    while (enumeration.hasMoreElements()) {
+                        JarEntry entry = enumeration.nextElement();
+                        if (!entry.getName().startsWith(st)) {
+                            continue;
+                        }
+                        if (!entry.isDirectory()) {
+                            InputStream is = jarFile.getInputStream(entry);
+                            File file = new File(dir, entry.getName());
+                            file.getParentFile().mkdirs();
+                            file.getParentFile().deleteOnExit();
+                            file.createNewFile();
+                            file.deleteOnExit();
+                            ReadUtils.copy(is, new FileOutputStream(file), true);
+                        }
                     }
-                    if (!entry.isDirectory()) {
-                        InputStream is = jarFile.getInputStream(entry);
-                        File file = new File(dir, entry.getName());
-                        file.getParentFile().mkdirs();
-                        file.getParentFile().deleteOnExit();
-                        file.createNewFile();
-                        file.deleteOnExit();
-                        ReadUtils.copy(is, new FileOutputStream(file), true);
-                    }
+                } else if ("file".equals(url.getProtocol())) {
+                    return url.getPath();
                 }
-            } else if ("file".equals(url.getProtocol())) {
-                return url.getPath();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         File f = new File(dir.getAbsolutePath(), st);
+        f.mkdirs();
         f.deleteOnExit();
         return f.getAbsolutePath();
     }

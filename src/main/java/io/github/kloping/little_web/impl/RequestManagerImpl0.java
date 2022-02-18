@@ -1,15 +1,16 @@
 package io.github.kloping.little_web.impl;
 
 import com.alibaba.fastjson.JSON;
+import io.github.kloping.MySpringTool.StarterApplication;
+import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
+import io.github.kloping.io.ReadUtils;
 import io.github.kloping.little_web.MimeMapping;
 import io.github.kloping.little_web.WebExtension;
 import io.github.kloping.little_web.annotations.GetMethod;
 import io.github.kloping.little_web.annotations.PostMethod;
 import io.github.kloping.little_web.annotations.RequestMethod;
+import io.github.kloping.little_web.conf.TomcatConfig;
 import io.github.kloping.little_web.interfaces.RequestManager;
-import io.github.kloping.MySpringTool.StarterApplication;
-import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
-import io.github.kloping.io.ReadUtils;
 import io.github.kloping.object.ObjectUtils;
 import org.apache.catalina.connector.RequestFacade;
 
@@ -82,20 +83,22 @@ public class RequestManagerImpl0 implements RequestManager {
             e.printStackTrace();
         } catch (Throwable e) {
             e.printStackTrace();
-            StarterApplication.logger.error("in web controller has exception "+getExceptionLine(e));
+            StarterApplication.logger.error("in web controller has exception " + getExceptionLine(e));
         }
         if (r != null) {
-            String json = null;
-            if (ObjectUtils.isBaseOrPack(r.getClass()) || r.getClass() == String.class) {
-                json = r.toString();
-            } else {
-                json = JSON.toJSONString(r);
-            }
-            byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
-            res.setContentType(MimeMapping.INSTANCE.getMimeMap().get("json"));
-            res.setContentLength(json.length());
-            res.setBufferSize(bytes.length);
             try {
+                String json = null;
+                if (ObjectUtils.isBaseOrPack(r.getClass()) || r.getClass() == String.class) {
+                    json = r.toString();
+                } else {
+                    json = JSON.toJSONString(r);
+                }
+                byte[] bytes = json.getBytes(TomcatConfig.DEFAULT.getCharset());
+                res.setContentType(MimeMapping.get("json"));
+                res.setContentLength(bytes.length);
+                res.setBufferSize(bytes.length);
+                req.setCharacterEncoding(TomcatConfig.DEFAULT.getCharset().name());
+                res.setCharacterEncoding(TomcatConfig.DEFAULT.getCharset().name());
                 res.getOutputStream().write(bytes);
                 res.getOutputStream().close();
             } catch (IOException e) {
@@ -110,8 +113,10 @@ public class RequestManagerImpl0 implements RequestManager {
             RequestFacade requestFacade = (RequestFacade) request;
             String url = requestFacade.getRequestURI();
             if (GET_PATH_MAPPING.containsKey(url)) {
+                StarterApplication.logger.log(url + "(GET) service exists in WebRestController");
                 return true;
             } else if (POST_PATH_MAPPING.containsKey(url)) {
+                StarterApplication.logger.log(url + "(POST) service exists in WebRestController");
                 return true;
             } else {
                 return false;
