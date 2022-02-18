@@ -45,4 +45,5 @@ buildNumber.properties
 out
 gen
 
+**/test
 **/resources
