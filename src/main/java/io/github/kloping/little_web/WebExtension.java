@@ -110,7 +110,9 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         String doBase = copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), createTempDir("temp-static"));
         Context context = tomcat.addContext("", doBase);
         context.setResources(new StandardRoot(context));
-        if (TomcatConfig.DEFAULT.getErrorPage() != null){context.addErrorPage(new ErrorPage(TomcatConfig.DEFAULT.getErrorPage()));}
+        if (TomcatConfig.DEFAULT.getErrorPage() != null) {
+            context.addErrorPage(new ErrorPage(TomcatConfig.DEFAULT.getErrorPage()));
+        }
         tomcat.addServlet("", "servlet0", new BaseServlet());
         context.addServletMappingDecoded("/", "servlet0");
         new MimeMapping().getMimeMap().forEach((k, v) -> {
@@ -211,6 +213,9 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         }
         if (path.endsWith(SPLIT)) {
             path = path.substring(0, path.length() - 1);
+        }
+        if (path.isEmpty()) {
+            return SPLIT;
         }
         return path;
     }
