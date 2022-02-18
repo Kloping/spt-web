@@ -7,6 +7,7 @@ import com.github.kloping.little_web.annotations.GetMethod;
 import com.github.kloping.little_web.annotations.PostMethod;
 import com.github.kloping.little_web.annotations.RequestMethod;
 import com.github.kloping.little_web.interfaces.RequestManager;
+import io.github.kloping.MySpringTool.StarterApplication;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.io.ReadUtils;
 import io.github.kloping.object.ObjectUtils;
@@ -14,6 +15,8 @@ import org.apache.catalina.connector.RequestFacade;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -22,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.kloping.little_web.WebExtension.filter;
+import static io.github.kloping.MySpringTool.partUtils.getExceptionLine;
 
 /**
  * @author github.kloping
@@ -59,12 +63,14 @@ public class RequestManagerImpl0 implements RequestManager {
     }
 
     @Override
-    public void service(ServletRequest req, ServletResponse res) {
+    public void service(HttpServletRequest req, HttpServletResponse res) {
         String u0 = ((RequestFacade) req).getRequestURI();
         Method method = GET_PATH_MAPPING.get(u0);
         byte[] body = null;
         try {
-            body = ReadUtils.readAll(req.getInputStream());
+            if (req.getContentLength() >= 0) {
+                body = ReadUtils.readAll(req.getInputStream());
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -77,6 +83,9 @@ public class RequestManagerImpl0 implements RequestManager {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+        } catch (Throwable e) {
+            e.printStackTrace();
+            StarterApplication.logger.error("in web controller has exception "+getExceptionLine(e));
         }
         if (r != null) {
             String json = null;
@@ -89,9 +98,9 @@ public class RequestManagerImpl0 implements RequestManager {
             res.setContentType(MimeMapping.INSTANCE.getMimeMap().get("json"));
             res.setContentLength(json.length());
             res.setBufferSize(bytes.length);
-            res.setCharacterEncoding("UTF-8");
             try {
                 res.getOutputStream().write(bytes);
+                res.getOutputStream().close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -99,7 +108,7 @@ public class RequestManagerImpl0 implements RequestManager {
     }
 
     @Override
-    public boolean exist(ServletRequest request) {
+    public boolean exist(HttpServletRequest request) {
         if (request instanceof RequestFacade) {
             RequestFacade requestFacade = (RequestFacade) request;
             String url = requestFacade.getRequestURI();

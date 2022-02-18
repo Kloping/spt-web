@@ -1,14 +1,13 @@
 package com.github.kloping.little_web.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.kloping.little_web.annotations.RequestBody;
 import com.github.kloping.little_web.annotations.RequestParm;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.object.ObjectUtils;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
@@ -18,7 +17,7 @@ import java.lang.reflect.Parameter;
 public class AutomaticWiringRequestParameter {
     public static final AutomaticWiringRequestParameter INSTANCE = new AutomaticWiringRequestParameter();
 
-    public Object[] wiring(Method method, ContextManager contextManager, ServletRequest req, ServletResponse res, byte[] body) {
+    public Object[] wiring(Method method, ContextManager contextManager, HttpServletRequest req, HttpServletResponse res, byte[] body) {
         Object[] rs = new Object[method.getParameterTypes().length];
         for (int i = 0; i < method.getParameters().length; i++) {
             Parameter parameter = method.getParameters()[i];
@@ -27,7 +26,7 @@ public class AutomaticWiringRequestParameter {
         return rs;
     }
 
-    private Object mather(Parameter parameter, ServletRequest req, ServletResponse res, byte[] bytes) {
+    private Object mather(Parameter parameter, HttpServletRequest req, HttpServletResponse res, byte[] bytes) {
         Class type = parameter.getType();
         if (parameter.isAnnotationPresent(RequestParm.class)) {
             RequestParm parm = parameter.getDeclaredAnnotation(RequestParm.class);
@@ -40,6 +39,12 @@ public class AutomaticWiringRequestParameter {
         if (parameter.isAnnotationPresent(RequestBody.class)) {
             String value = new String(bytes);
             return getMatherObj(type, value);
+        }
+        if (ObjectUtils.isSuperOrInterface(type, HttpServletRequest.class)) {
+            return req;
+        }
+        if (ObjectUtils.isSuperOrInterface(type, HttpServletResponse.class)) {
+            return res;
         }
         return null;
     }
