@@ -9,8 +9,9 @@ import java.nio.charset.StandardCharsets;
  * @author github.kloping
  */
 public class TomcatConfig {
+    public static final String CLASSPATH_KEY = "classpath:";
     private Integer port = 80;
-    private String staticPath = "static";
+    private String staticPath = CLASSPATH_KEY + "static";
     private String name = "tomcat-default";
     private String errorPage = null;
     private Charset charset = StandardCharsets.UTF_8;

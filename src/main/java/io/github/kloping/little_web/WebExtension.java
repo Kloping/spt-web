@@ -29,6 +29,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import static io.github.kloping.MySpringTool.h1.impl.component.HttpClientManagerImpl.SPLIT;
+import static io.github.kloping.little_web.conf.TomcatConfig.CLASSPATH_KEY;
 
 
 /**
@@ -122,31 +123,36 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
 
     private static String copyClassPathFileToTempDir(String st, File dir) {
         try {
-            URL url = WebExtension.class.getClassLoader().getResource(st);
-            if (url != null) {
-                if ("jar".equals(url.getProtocol())) {
-                    String ofn = url.getPath();
-                    String fn = ofn.substring(ofn.indexOf("/"), ofn.indexOf("!"));
-                    JarFile jarFile = new JarFile(fn);
-                    Enumeration<JarEntry> enumeration = jarFile.entries();
-                    while (enumeration.hasMoreElements()) {
-                        JarEntry entry = enumeration.nextElement();
-                        if (!entry.getName().startsWith(st)) {
-                            continue;
+            if (st.startsWith(CLASSPATH_KEY)) {
+                st = st.substring(10);
+                URL url = WebExtension.class.getClassLoader().getResource(st);
+                if (url != null) {
+                    if ("jar".equals(url.getProtocol())) {
+                        String ofn = url.getPath();
+                        String fn = ofn.substring(ofn.indexOf("/"), ofn.indexOf("!"));
+                        JarFile jarFile = new JarFile(fn);
+                        Enumeration<JarEntry> enumeration = jarFile.entries();
+                        while (enumeration.hasMoreElements()) {
+                            JarEntry entry = enumeration.nextElement();
+                            if (!entry.getName().startsWith(st)) {
+                                continue;
+                            }
+                            if (!entry.isDirectory()) {
+                                InputStream is = jarFile.getInputStream(entry);
+                                File file = new File(dir, entry.getName());
+                                file.getParentFile().mkdirs();
+                                file.getParentFile().deleteOnExit();
+                                file.createNewFile();
+                                file.deleteOnExit();
+                                ReadUtils.copy(is, new FileOutputStream(file), true);
+                            }
                         }
-                        if (!entry.isDirectory()) {
-                            InputStream is = jarFile.getInputStream(entry);
-                            File file = new File(dir, entry.getName());
-                            file.getParentFile().mkdirs();
-                            file.getParentFile().deleteOnExit();
-                            file.createNewFile();
-                            file.deleteOnExit();
-                            ReadUtils.copy(is, new FileOutputStream(file), true);
-                        }
+                    } else if ("file".equals(url.getProtocol())) {
+                        return url.getPath();
                     }
-                } else if ("file".equals(url.getProtocol())) {
-                    return url.getPath();
                 }
+            } else {
+                return st;
             }
         } catch (Exception e) {
             e.printStackTrace();
