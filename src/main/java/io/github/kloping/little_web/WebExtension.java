@@ -40,6 +40,9 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
     public void manager(AccessibleObject accessibleObject, ContextManager contextManager) throws InvocationTargetException, IllegalAccessException {
     }
 
+
+    public static WebExtension extension = null;
+
     @Override
     public void manager(Class clsz, ContextManager contextManager) throws IllegalAccessException, InvocationTargetException {
         Object o = null;
@@ -66,6 +69,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
             declaredMethod.setAccessible(true);
             RequestManagerImpl0.INSTANCE.manager(declaredMethod, contextManager);
         }
+        extension = this;
     }
 
     public Map<Class, String> FATHER_PATH_MAPPING = new HashMap<>();
@@ -107,8 +111,10 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         tomcat.getServer().await();
     }
 
+    public static File tempDir = null;
+
     public void configContext(Tomcat tomcat) {
-        String doBase = copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), createTempDir("temp-static"));
+        String doBase = copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), tempDir = createTempDir("temp-static"));
         Context context = tomcat.addContext("", doBase);
         context.setResources(new StandardRoot(context));
         if (TomcatConfig.DEFAULT.getErrorPage() != null) {
@@ -121,9 +127,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         });
     }
 
-    public static String nearstfile = null;
-
-    private static String copyClassPathFileToTempDir(String st, File dir) {
+    public static String copyClassPathFileToTempDir(String st, File dir) {
         try {
             if (st.startsWith(CLASSPATH_KEY)) {
                 st = st.substring(10);
@@ -146,7 +150,6 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
                                 file.getParentFile().deleteOnExit();
                                 file.createNewFile();
                                 file.deleteOnExit();
-                                nearstfile = file.getAbsolutePath();
                                 ReadUtils.copy(is, new FileOutputStream(file), true);
                             }
                         }

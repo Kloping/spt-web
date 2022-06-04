@@ -16,7 +16,6 @@ import org.apache.catalina.connector.RequestFacade;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -24,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.github.kloping.MySpringTool.partUtils.getExceptionLine;
+import static io.github.kloping.little_web.WebExtension.copyClassPathFileToTempDir;
+import static io.github.kloping.little_web.WebExtension.tempDir;
 
 /**
  * @author github.kloping
@@ -109,8 +110,9 @@ public class RequestManagerImpl0 implements RequestManager {
     }
 
     private void flush() {
-        if (!new File(WebExtension.nearstfile).exists()) {
-            StarterApplication.Setting.INSTANCE.getContextManager().getContextEntity(WebExtension.class).configContext(WebExtension.tomcat);
+        if (tempDir == null) return;
+        if (!tempDir.exists()) {
+            copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), tempDir);
         }
     }
 
