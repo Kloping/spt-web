@@ -4,6 +4,7 @@ import io.github.kloping.MySpringTool.StarterApplication;
 import io.github.kloping.MySpringTool.interfaces.Extension;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.MySpringTool.interfaces.component.up0.ClassAttributeManager;
+import io.github.kloping.common.Public;
 import io.github.kloping.io.ReadUtils;
 import io.github.kloping.little_web.annotations.WebRestController;
 import io.github.kloping.little_web.conf.TomcatConfig;
@@ -90,11 +91,13 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         StarterApplication.PRE_SCAN_RUNNABLE.add(() -> {
             StarterApplication.Setting.INSTANCE.getClassManager().registeredAnnotation(WebRestController.class, this);
             StarterApplication.POST_SCAN_RUNNABLE.add(() -> {
-                try {
-                    startServer();
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
+                Public.EXECUTOR_SERVICE.submit(() -> {
+                    try {
+                        startServer();
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+                });
             });
         });
     }
