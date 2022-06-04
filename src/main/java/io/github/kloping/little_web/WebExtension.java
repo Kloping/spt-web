@@ -107,7 +107,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         tomcat.getServer().await();
     }
 
-    private void configContext(Tomcat tomcat) {
+    public void configContext(Tomcat tomcat) {
         String doBase = copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), createTempDir("temp-static"));
         Context context = tomcat.addContext("", doBase);
         context.setResources(new StandardRoot(context));
@@ -120,6 +120,8 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
             context.addMimeMapping(k, v);
         });
     }
+
+    public static String nearstfile = null;
 
     private static String copyClassPathFileToTempDir(String st, File dir) {
         try {
@@ -144,6 +146,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
                                 file.getParentFile().deleteOnExit();
                                 file.createNewFile();
                                 file.deleteOnExit();
+                                nearstfile = file.getAbsolutePath();
                                 ReadUtils.copy(is, new FileOutputStream(file), true);
                             }
                         }

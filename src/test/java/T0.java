@@ -8,7 +8,7 @@ import io.github.kloping.MySpringTool.annotations.CommentScan;
 @CommentScan(path = "web")
 public class T0 {
     public static void main(String[] args) throws Throwable {
-        TomcatConfig.getDEFAULT().setStaticPath("D:\\GamesPath\\spt-web-0.1.2-javadoc");
+        TomcatConfig.getDEFAULT();
         StarterApplication.run(T0.class);
     }
 }

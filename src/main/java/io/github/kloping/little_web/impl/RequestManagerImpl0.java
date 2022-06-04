@@ -16,10 +16,10 @@ import org.apache.catalina.connector.RequestFacade;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +62,7 @@ public class RequestManagerImpl0 implements RequestManager {
 
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) {
+        flush();
         String u0 = ((RequestFacade) req).getRequestURI();
         Method method = GET_PATH_MAPPING.get(u0);
         byte[] body = null;
@@ -104,6 +105,12 @@ public class RequestManagerImpl0 implements RequestManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void flush() {
+        if (!new File(WebExtension.nearstfile).exists()) {
+            StarterApplication.Setting.INSTANCE.getContextManager().getContextEntity(WebExtension.class).configContext(WebExtension.tomcat);
         }
     }
 

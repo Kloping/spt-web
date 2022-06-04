@@ -13,7 +13,7 @@ public class TomcatConfig {
     private Integer port = 80;
     private String staticPath = CLASSPATH_KEY + "static";
     private String name = "tomcat-default";
-    private String errorPage = null;
+    private String errorPage = "/error.html";
     private Charset charset = StandardCharsets.UTF_8;
     public static TomcatConfig DEFAULT = new TomcatConfig();
 
