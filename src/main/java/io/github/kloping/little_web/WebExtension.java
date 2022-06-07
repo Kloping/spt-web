@@ -1,6 +1,6 @@
 package io.github.kloping.little_web;
 
-import io.github.kloping.MySpringTool.StarterApplication;
+import io.github.kloping.MySpringTool.Setting;
 import io.github.kloping.MySpringTool.interfaces.Extension;
 import io.github.kloping.MySpringTool.interfaces.component.ContextManager;
 import io.github.kloping.MySpringTool.interfaces.component.up0.ClassAttributeManager;
@@ -37,27 +37,32 @@ import static io.github.kloping.little_web.conf.TomcatConfig.CLASSPATH_KEY;
  * @author github.kloping
  */
 public class WebExtension implements Extension.ExtensionRunnable, ClassAttributeManager {
+    public static WebExtension extension = null;
+    private Setting setting;
+
+    @Override
+    public void setSetting(Setting setting) {
+        this.setting = setting;
+    }
+
     @Override
     public void manager(AccessibleObject accessibleObject, ContextManager contextManager) throws InvocationTargetException, IllegalAccessException {
     }
-
-
-    public static WebExtension extension = null;
 
     @Override
     public void manager(Class clsz, ContextManager contextManager) throws IllegalAccessException, InvocationTargetException {
         Object o = null;
         try {
-            o = StarterApplication.Setting.INSTANCE.getInstanceCrater().create(clsz, contextManager);
+            o = setting.getInstanceCrater().create(clsz, contextManager);
         } catch (InstantiationException e) {
             e.printStackTrace();
         }
         contextManager.append(o);
-        StarterApplication.STARTED_RUNNABLE.add(() -> {
+        setting.getSTARTED_RUNNABLE().add(() -> {
             for (Field declaredField : clsz.getDeclaredFields()) {
                 declaredField.setAccessible(true);
                 try {
-                    StarterApplication.Setting.INSTANCE.getFieldManager().manager(declaredField, contextManager);
+                    setting.getFieldManager().manager(declaredField, contextManager);
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -88,9 +93,9 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
 
     @Override
     public void run() throws Throwable {
-        StarterApplication.PRE_SCAN_RUNNABLE.add(() -> {
-            StarterApplication.Setting.INSTANCE.getClassManager().registeredAnnotation(WebRestController.class, this);
-            StarterApplication.POST_SCAN_RUNNABLE.add(() -> {
+        setting.getPRE_SCAN_RUNNABLE().add(() -> {
+            setting.getClassManager().registeredAnnotation(WebRestController.class, this);
+            setting.getPOST_SCAN_RUNNABLE().add(() -> {
                 Public.EXECUTOR_SERVICE.submit(() -> {
                     try {
                         startServer();
