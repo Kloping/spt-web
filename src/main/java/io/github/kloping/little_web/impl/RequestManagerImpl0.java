@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.github.kloping.MySpringTool.partUtils.getExceptionLine;
+import static io.github.kloping.MySpringTool.PartUtils.getExceptionLine;
 import static io.github.kloping.little_web.WebExtension.copyClassPathFileToTempDir;
 import static io.github.kloping.little_web.WebExtension.tempDir;
 
