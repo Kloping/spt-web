@@ -37,8 +37,13 @@ import static io.github.kloping.little_web.conf.TomcatConfig.CLASSPATH_KEY;
  * @author github.kloping
  */
 public class WebExtension implements Extension.ExtensionRunnable, ClassAttributeManager {
-    public static WebExtension extension = null;
     private Setting setting;
+    private ContextManager contextManager;
+    public RequestManagerImpl0 requestManagerImpl0;
+
+    public WebExtension() {
+        requestManagerImpl0 = new RequestManagerImpl0(this);
+    }
 
     @Override
     public void setSetting(Setting setting) {
@@ -58,6 +63,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
             e.printStackTrace();
         }
         contextManager.append(o);
+        this.contextManager = contextManager;
         setting.getSTARTED_RUNNABLE().add(() -> {
             for (Field declaredField : clsz.getDeclaredFields()) {
                 declaredField.setAccessible(true);
@@ -73,9 +79,8 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         FATHER_PATH_MAPPING.put(clsz, filter(s));
         for (Method declaredMethod : clsz.getDeclaredMethods()) {
             declaredMethod.setAccessible(true);
-            RequestManagerImpl0.INSTANCE.manager(declaredMethod, contextManager);
+            requestManagerImpl0.manager(declaredMethod, contextManager);
         }
-        extension = this;
     }
 
     public Map<Class, String> FATHER_PATH_MAPPING = new HashMap<>();
@@ -89,7 +94,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         return this.getClass().getSimpleName();
     }
 
-    public static Tomcat tomcat = null;
+    public Tomcat tomcat = null;
 
     @Override
     public void run() throws Throwable {
@@ -107,28 +112,39 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         });
     }
 
+    public TomcatConfig config;
+
     private void startServer() throws Throwable {
         if (tomcat == null) {
             tomcat = new Tomcat();
         }
+        if (contextManager.getContextEntity(TomcatConfig.class) != null) {
+            config = contextManager.getContextEntity(TomcatConfig.class);
+        } else {
+            config = new TomcatConfig();
+            contextManager.append(config);
+        }
+        contextManager.append(requestManagerImpl0);
         tomcat.setBaseDir(createTempDir("base").getAbsolutePath());
-        tomcat.getService().setName(TomcatConfig.DEFAULT.getName());
-        tomcat.getConnector().setPort(TomcatConfig.DEFAULT.getPort());
+        tomcat.getService().setName(config.getName());
+        tomcat.getConnector().setPort(config.getPort());
         configContext(tomcat);
         tomcat.getServer().start();
         tomcat.getServer().await();
     }
 
-    public static File tempDir = null;
+    public File tempDir = null;
 
     public void configContext(Tomcat tomcat) {
-        String doBase = copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), tempDir = createTempDir("temp-static"));
+        String doBase = copyClassPathFileToTempDir(config.getStaticPath(), tempDir = createTempDir("temp-static"));
         Context context = tomcat.addContext("", doBase);
         context.setResources(new StandardRoot(context));
-        if (TomcatConfig.DEFAULT.getErrorPage() != null) {
-            context.addErrorPage(new ErrorPage(TomcatConfig.DEFAULT.getErrorPage()));
+        if (config.getErrorPage() != null) {
+            context.addErrorPage(new ErrorPage(config.getErrorPage()));
         }
-        tomcat.addServlet("", "servlet0", new BaseServlet());
+        BaseServlet servlet = new BaseServlet(this);
+        contextManager.append(servlet);
+        tomcat.addServlet("", "servlet0", servlet);
         context.addServletMappingDecoded("/", "servlet0");
         MimeMapping.forEach((k, v) -> {
             context.addMimeMapping(k, v);

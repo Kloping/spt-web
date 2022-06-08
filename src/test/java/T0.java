@@ -8,7 +8,10 @@ import io.github.kloping.MySpringTool.annotations.CommentScan;
 @CommentScan(path = "web")
 public class T0 {
     public static void main(String[] args) throws Throwable {
-        TomcatConfig.getDEFAULT();
+        StarterApplication.PRE_SCAN_RUNNABLE.add(()->{
+            TomcatConfig config = new TomcatConfig();
+            StarterApplication.Setting.INSTANCE.getContextManager().append(config);
+        });
         StarterApplication.run(T0.class);
     }
 }

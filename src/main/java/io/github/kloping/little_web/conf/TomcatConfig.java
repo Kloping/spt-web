@@ -15,7 +15,6 @@ public class TomcatConfig {
     private String name = "tomcat-default";
     private String errorPage = "/error.html";
     private Charset charset = StandardCharsets.UTF_8;
-    public static TomcatConfig DEFAULT = new TomcatConfig();
 
     public TomcatConfig() {
     }
@@ -26,14 +25,6 @@ public class TomcatConfig {
 
     public void setCharset(Charset charset) {
         this.charset = charset;
-    }
-
-    public static TomcatConfig getDEFAULT() {
-        return DEFAULT;
-    }
-
-    public static void setDEFAULT(TomcatConfig DEFAULT) {
-        TomcatConfig.DEFAULT = DEFAULT;
     }
 
     public String getErrorPage() {

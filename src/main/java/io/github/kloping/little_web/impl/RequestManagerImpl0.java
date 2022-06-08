@@ -24,13 +24,17 @@ import java.util.Map;
 
 import static io.github.kloping.MySpringTool.PartUtils.getExceptionLine;
 import static io.github.kloping.little_web.WebExtension.copyClassPathFileToTempDir;
-import static io.github.kloping.little_web.WebExtension.tempDir;
 
 /**
  * @author github.kloping
  */
 public class RequestManagerImpl0 implements RequestManager {
-    public static final RequestManagerImpl0 INSTANCE = new RequestManagerImpl0();
+
+    private WebExtension extension;
+
+    public RequestManagerImpl0(WebExtension extension) {
+        this.extension = extension;
+    }
 
     public Map<String, Method> GET_PATH_MAPPING = new HashMap<>();
     public Map<String, Method> POST_PATH_MAPPING = new HashMap<>();
@@ -95,12 +99,12 @@ public class RequestManagerImpl0 implements RequestManager {
                 } else {
                     json = JSON.toJSONString(r);
                 }
-                byte[] bytes = json.getBytes(TomcatConfig.DEFAULT.getCharset());
+                byte[] bytes = json.getBytes(extension.config.getCharset());
                 res.setContentType(MimeMapping.get("json"));
                 res.setContentLength(bytes.length);
                 res.setBufferSize(bytes.length);
-                req.setCharacterEncoding(TomcatConfig.DEFAULT.getCharset().name());
-                res.setCharacterEncoding(TomcatConfig.DEFAULT.getCharset().name());
+                req.setCharacterEncoding(extension.config.getCharset().name());
+                res.setCharacterEncoding(extension.config.getCharset().name());
                 res.getOutputStream().write(bytes);
                 res.getOutputStream().close();
             } catch (IOException e) {
@@ -110,9 +114,9 @@ public class RequestManagerImpl0 implements RequestManager {
     }
 
     private void flush() {
-        if (tempDir == null) return;
-        if (!tempDir.exists()) {
-            copyClassPathFileToTempDir(TomcatConfig.DEFAULT.getStaticPath(), tempDir);
+        if (extension.tempDir == null) return;
+        if (!extension.tempDir.exists()) {
+            copyClassPathFileToTempDir(extension.config.getStaticPath(), extension.tempDir);
         }
     }
 
