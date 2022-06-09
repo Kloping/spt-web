@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>io.github.Kloping</groupId>
     <artifactId>spt-web</artifactId>
-    <version>0.1.8</version>
+    <version>0.1.9</version>
     <packaging>jar</packaging>
     <name>spt-web</name>
     <url>https://github.com/kloping/spt-web</url>
@@ -63,11 +63,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.14.3</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tomcat.embed</groupId>-->
-<!--            <artifactId>tomcat-embed-el</artifactId>-->
-<!--            <version>${tomcat.version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.tomcat.embed</groupId>
             <artifactId>tomcat-embed-core</artifactId>
@@ -78,11 +73,6 @@
             <artifactId>tomcat-jasper</artifactId>
             <version>${tomcat.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.tomcat.embed</groupId>-->
-<!--            <artifactId>tomcat-embed-websocket</artifactId>-->
-<!--            <version>${tomcat.version}</version>-->
-<!--        </dependency>-->
     </dependencies>
     <distributionManagement>
         <snapshotRepository>
