@@ -115,21 +115,24 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
     public TomcatConfig config;
 
     private void startServer() throws Throwable {
-        if (tomcat == null) {
-            tomcat = new Tomcat();
+        synchronized (WebExtension.class) {
+            if (tomcat == null) {
+                tomcat = new Tomcat();
+            }
+            if (contextManager.getContextEntity(TomcatConfig.class) != null) {
+                config = contextManager.getContextEntity(TomcatConfig.class);
+            } else {
+                config = new TomcatConfig();
+                contextManager.append(config);
+            }
+            contextManager.append(requestManagerImpl0);
+            String baseDir = null;
+            tomcat.setBaseDir(baseDir = createTempDir("base").getAbsolutePath());
+            tomcat.getService().setName(config.getName());
+            tomcat.getConnector().setPort(config.getPort());
+            configContext(tomcat);
+            tomcat.getServer().start();
         }
-        if (contextManager.getContextEntity(TomcatConfig.class) != null) {
-            config = contextManager.getContextEntity(TomcatConfig.class);
-        } else {
-            config = new TomcatConfig();
-            contextManager.append(config);
-        }
-        contextManager.append(requestManagerImpl0);
-        tomcat.setBaseDir(createTempDir("base").getAbsolutePath());
-        tomcat.getService().setName(config.getName());
-        tomcat.getConnector().setPort(config.getPort());
-        configContext(tomcat);
-        tomcat.getServer().start();
         tomcat.getServer().await();
     }
 
@@ -144,8 +147,10 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         }
         BaseServlet servlet = new BaseServlet(this);
         contextManager.append(servlet);
-        tomcat.addServlet("", "servlet0", servlet);
-        context.addServletMappingDecoded("/", "servlet0");
+        String servletName = contextManager.getContextEntity(String.class, "servletName");
+        servletName = servletName == null ? "servlet0" : servletName;
+        tomcat.addServlet("", servletName, servlet);
+        context.addServletMappingDecoded("/", servletName);
         MimeMapping.forEach((k, v) -> {
             context.addMimeMapping(k, v);
         });
