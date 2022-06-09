@@ -9,7 +9,6 @@ import io.github.kloping.little_web.WebExtension;
 import io.github.kloping.little_web.annotations.GetMethod;
 import io.github.kloping.little_web.annotations.PostMethod;
 import io.github.kloping.little_web.annotations.RequestMethod;
-import io.github.kloping.little_web.conf.TomcatConfig;
 import io.github.kloping.little_web.interfaces.RequestManager;
 import io.github.kloping.object.ObjectUtils;
 import org.apache.catalina.connector.RequestFacade;
@@ -116,7 +115,7 @@ public class RequestManagerImpl0 implements RequestManager {
     private void flush() {
         if (extension.tempDir == null) return;
         if (!extension.tempDir.exists()) {
-            copyClassPathFileToTempDir(extension.config.getStaticPath(), extension.tempDir);
+            copyClassPathFileToTempDir(extension.config.getStaticPath(), extension.tempDir, extension.nearstClass);
         }
     }
 

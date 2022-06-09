@@ -56,6 +56,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
 
     @Override
     public void manager(Class clsz, ContextManager contextManager) throws IllegalAccessException, InvocationTargetException {
+        nearstClass = clsz;
         Object o = null;
         try {
             o = setting.getInstanceCrater().create(clsz, contextManager);
@@ -82,6 +83,8 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
             requestManagerImpl0.manager(declaredMethod, contextManager);
         }
     }
+
+    public Class nearstClass = null;
 
     public Map<Class, String> FATHER_PATH_MAPPING = new HashMap<>();
 
@@ -139,7 +142,7 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
     public File tempDir = null;
 
     public void configContext(Tomcat tomcat) {
-        String doBase = copyClassPathFileToTempDir(config.getStaticPath(), tempDir = createTempDir("temp-static"));
+        String doBase = copyClassPathFileToTempDir(config.getStaticPath(), tempDir = createTempDir("temp-static"), nearstClass);
         Context context = tomcat.addContext("", doBase);
         context.setResources(new StandardRoot(context));
         if (config.getErrorPage() != null) {
@@ -156,11 +159,27 @@ public class WebExtension implements Extension.ExtensionRunnable, ClassAttribute
         });
     }
 
-    public static String copyClassPathFileToTempDir(String st, File dir) {
+    public static String copyClassPathFileToTempDir(String st, File dir, Class cla) {
         try {
             if (st.startsWith(CLASSPATH_KEY)) {
-                st = st.substring(10);
-                URL url = WebExtension.class.getClassLoader().getResource(st);
+                st = st.substring(CLASSPATH_KEY.length());
+                String calJarPath = cla.getProtectionDomain().getCodeSource().getLocation().getFile();
+                File calJar = new File(calJarPath);
+                URL url = null;
+                Enumeration<URL> e0 = cla.getClassLoader().getResources(st);
+                while (e0.hasMoreElements()) {
+                    URL u1 = e0.nextElement();
+                    if (url == null) {
+                        url = u1;
+                    } else {
+                        File oFile =new File(u1.getFile());
+                        oFile = oFile.getParentFile();
+                        if (oFile.equals(calJar)) {
+                            url = u1;
+                        }
+                    }
+                }
+                System.out.println(url);
                 if (url != null) {
                     if ("jar".equals(url.getProtocol())) {
                         String ofn = url.getPath();
