@@ -1,5 +1,6 @@
 package io.github.kloping.little_web.servlets;
 
+import io.github.kloping.common.Public;
 import io.github.kloping.little_web.WebExtension;
 import io.github.kloping.little_web.interfaces.ServletIntercept;
 import org.apache.catalina.servlets.DefaultServlet;
@@ -38,5 +39,10 @@ public class BaseServlet extends DefaultServlet {
             }
         }
         super.service(req, res);
+        Public.EXECUTOR_SERVICE.submit(() -> {
+            for (ServletIntercept intercept : intercepts) {
+                intercept.onService(req, res);
+            }
+        });
     }
 }
