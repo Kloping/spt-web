@@ -1,6 +1,5 @@
 package io.github.kloping.little_web.servlets;
 
-import io.github.kloping.common.Public;
 import io.github.kloping.little_web.WebExtension;
 import io.github.kloping.little_web.interfaces.ServletIntercept;
 import org.apache.catalina.servlets.DefaultServlet;
@@ -33,16 +32,14 @@ public class BaseServlet extends DefaultServlet {
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
         if (req instanceof HttpServletRequest && res instanceof HttpServletResponse) {
+            for (ServletIntercept intercept : intercepts) {
+                if (intercept.onService(req, res)) return;
+            }
             if (extension.requestManagerImpl0.exist((HttpServletRequest) req)) {
                 extension.requestManagerImpl0.service((HttpServletRequest) req, (HttpServletResponse) res);
                 return;
             }
         }
         super.service(req, res);
-        Public.EXECUTOR_SERVICE.submit(() -> {
-            for (ServletIntercept intercept : intercepts) {
-                intercept.onService(req, res);
-            }
-        });
     }
 }
